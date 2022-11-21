@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/job-tracking: ""
+  labels:
+    job-name: echo-job
+  name: echo-job
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        job-name: echo-job
+    spec:
+      containers:
+      - image: busybox
+        imagePullPolicy: IfNotPresent
+        name: echo-job
+        resources: {}
+        command: ["/bin/echo"]
+        args: ["Hello", "World"]
+      restartPolicy: OnFailure
+

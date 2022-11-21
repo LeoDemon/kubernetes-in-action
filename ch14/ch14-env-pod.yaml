@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-pod-ch14
+
+spec:
+  containers:
+  - env:
+      - name: COUNT
+        valueFrom:
+          configMapKeyRef:
+            name: info-cm-ch14
+            key: count
+      - name: GREETING
+        valueFrom:
+          configMapKeyRef:
+            name: info-cm-ch14
+            key: greeting
+      - name: USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: user-secret-ch14
+            key: name
+      - name: PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: user-secret-ch14
+            key: pwd
+
+    image: busybox
+    name: busy
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sleep", "300"]

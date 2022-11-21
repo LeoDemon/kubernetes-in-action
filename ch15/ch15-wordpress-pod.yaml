@@ -1,0 +1,35 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wp-cm-ch15
+
+data:
+  HOST: '172.17.0.5'
+  USER: 'wp'
+  PASSWORD: '123'
+  NAME: 'db'
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: wp-pod-ch15
+  labels:
+    app: wordpress
+    role: website
+
+spec:
+  containers:
+  - image: wordpress:5
+    name: wp-pod
+    imagePullPolicy: IfNotPresent
+    ports:
+    - containerPort: 80
+
+    envFrom:
+    - prefix: 'WORDPRESS_DB_'
+      configMapRef:
+        name: wp-cm-ch15
+

@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/job-tracking: ""
+  labels:
+    job-name: sleep-job
+  name: sleep-job
+  namespace: default
+
+spec:
+  activeDeadlineSeconds: 15
+  backoffLimit: 2
+  completions: 4
+  parallelism: 2
+
+  template:
+    metadata:
+      labels:
+        job-name: sleep-job
+    spec:
+      containers:
+      - image: busybox
+        imagePullPolicy: IfNotPresent
+        name: sleep-job
+        resources: {}
+        command:
+          - sh
+          - -c
+          - sleep $(($RANDOM % 10 + 1)) && echo done
+      restartPolicy: OnFailure
+

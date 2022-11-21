@@ -1,0 +1,17 @@
+Password:
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: ngx-pod
+  name: ngx-pod
+spec:
+  containers:
+    - image: nginx:1.22.1
+      name: ngx-pod
+      resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
