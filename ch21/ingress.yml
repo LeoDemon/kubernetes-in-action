@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ngx-ing-ch21
+  
+spec:
+
+  ingressClassName: ngx-ink-ch21
+  
+  rules:
+  - host: ngx.test.ch21
+    http:
+      paths:
+      - path: /
+        pathType: Exact
+        backend:
+          service:
+            name: ngx-svc-ch20
+            port:
+              number: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: ngx-ink-ch21
+
+spec:
+  controller: nginx.org/ingress-controller
+
