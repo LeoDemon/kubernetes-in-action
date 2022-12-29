@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  creationTimestamp: null
+  name: sleep-cj-ch13
+spec:
+  schedule: '*/1 * * * *'
+  concurrencyPolicy: Replace
+  jobTemplate:
+    metadata:
+      creationTimestamp: null
+      name: sleep-cj-ch13
+    spec:
+      template:
+        metadata:
+          creationTimestamp: null
+        spec:
+          containers:
+          - image: busybox
+            name: sleep-cj-ch13
+            resources: {}
+            imagePullPolicy: IfNotPresent
+            command:
+              - sh
+              - -c
+              - sleep 90 && echo done
+          restartPolicy: OnFailure
+
