@@ -5,10 +5,13 @@ metadata:
 
 spec:
   storageClassName: host-test
+  # persistentVolumeReclaimPolicy default value is `Retain`, and modify it to `Delete` is not working 
+  #persistentVolumeReclaimPolicy: Delete
   accessModes:
     - ReadWriteOnce
   capacity:
     storage: 10Mi
   hostPath:
+    # kubernetes will create the dir automatically when the pvc is loaded by the pod.
     path: /tmp/host-10m-pv/
 
