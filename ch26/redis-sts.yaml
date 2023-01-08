@@ -5,6 +5,18 @@ metadata:
 
 spec:
   serviceName: redis-svc
+
+  volumeClaimTemplates:
+    - metadata:
+        name: redis-100m-pvc
+      spec:
+        storageClassName: nfs-client
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 100Mi
+
   replicas: 2
   selector:
     matchLabels:
@@ -20,4 +32,7 @@ spec:
           name: redis
           ports:
             - containerPort: 6379
+          volumeMounts:
+            - name: redis-100m-pvc
+              mountPath: /data
 
