@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  creationTimestamp: null
+  labels:
+    app: redis-ds-ch19
+  name: redis-ds-ch19
+spec:
+  selector:
+    matchLabels:
+      app: redis-ds-ch19
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: redis-ds-ch19
+    spec:
+      containers:
+      - image: redis:5-alpine
+        name: redis
+        resources: {}
+      tolerations:
+        # 容忍所有污点
+        #- operator: Exists
+        # 容忍指定 key 和 effect 的污点
+        - key: node-role.kubernetes.io/control-plane
+          effect: NoSchedule
+          operator: Exists
