@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ngx-dep-ch27
+  name: ngx-dep-ch27
+  annotations:
+    kubernetes.io/change-cause: v1, ngx=1.22
+    #kubernetes.io/change-cause: v2, ngx=1.23
+spec:
+  minReadySeconds: 15 # 确认 pod 就绪的等待时间,防止更新的太快,不方便观察
+  replicas: 4
+  selector:
+    matchLabels:
+      app: ngx-ch27
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ngx-ch27
+    spec:
+      volumes:
+        - name: ngx-conf-ch27-vol
+          configMap:
+            name: ngx-conf-ch27
+      containers:
+        - image: nginx:1.22-alpine
+          name: nginx
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d
+              name: ngx-conf-ch27-vol
+
