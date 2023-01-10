@@ -12,10 +12,12 @@ spec:
       port: 80
       targetPort: 80
       protocol: TCP
+      nodePort: 5015
     - name: https
       port: 443
       targetPort: 443
       protocol: TCP
+      nodePort: 5016
   selector:
     app: ngx-kic-dep-ch21
 
