@@ -1,0 +1,169 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress-kong-svc
+  namespace: kong
+spec:
+  ports:
+  - name: proxy
+    port: 80
+    protocol: TCP
+    targetPort: 8000
+  - name: proxy-ssl
+    port: 443
+    protocol: TCP
+    targetPort: 8443
+  selector:
+    app: ingress-kong-dep
+  #type: LoadBalancer
+  #type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ingress-kong-dep
+  name: ingress-kong-dep
+  namespace: kong
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ingress-kong-dep
+  template:
+    metadata:
+      labels:
+        app: ingress-kong-dep
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - env:
+        - name: KONG_PROXY_LISTEN
+          value: 0.0.0.0:8000 reuseport backlog=16384, 0.0.0.0:8443 http2 ssl reuseport
+            backlog=16384
+        - name: KONG_PORT_MAPS
+          value: 80:8000, 443:8443
+        - name: KONG_ADMIN_LISTEN
+          value: 127.0.0.1:8444 http2 ssl reuseport backlog=16384
+        - name: KONG_STATUS_LISTEN
+          value: 0.0.0.0:8100
+        - name: KONG_DATABASE
+          value: "off"
+        - name: KONG_NGINX_WORKER_PROCESSES
+          value: "2"
+        - name: KONG_KIC
+          value: "on"
+        - name: KONG_ADMIN_ACCESS_LOG
+          value: /dev/stdout
+        - name: KONG_ADMIN_ERROR_LOG
+          value: /dev/stderr
+        - name: KONG_PROXY_ERROR_LOG
+          value: /dev/stderr
+        - name: KONG_ROUTER_FLAVOR
+          value: traditional
+        image: kong:3.1
+        #image: 192.168.10.127:5000/kong:3.1
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/bash
+              - -c
+              - kong quit
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /status
+            port: 8100
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: proxy
+        ports:
+        - containerPort: 8000
+          name: proxy
+          protocol: TCP
+        - containerPort: 8443
+          name: proxy-ssl
+          protocol: TCP
+        - containerPort: 8100
+          name: metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /status
+            port: 8100
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+      - env:
+        - name: CONTROLLER_KONG_ADMIN_URL
+          value: https://127.0.0.1:8444
+        - name: CONTROLLER_KONG_ADMIN_TLS_SKIP_VERIFY
+          value: "true"
+        - name: CONTROLLER_PUBLISH_SERVICE
+          value: kong/ingress-kong-svc
+        - name: CONTROLLER_INGRESS_CLASS
+          value: kong-ink
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        image: kong/kubernetes-ingress-controller:2.8.1
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: ingress-controller
+        ports:
+        - containerPort: 8080
+          name: webhook
+          protocol: TCP
+        - containerPort: 10255
+          name: cmetrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: 10254
+            scheme: HTTP
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: kong-serviceaccount-token
+          readOnly: true
+      serviceAccountName: kong-serviceaccount
+      volumes:
+      - name: kong-serviceaccount-token
+        secret:
+          items:
+          - key: token
+            path: token
+          - key: ca.crt
+            path: ca.crt
+          - key: namespace
+            path: namespace
+          secretName: kong-serviceaccount-token
+

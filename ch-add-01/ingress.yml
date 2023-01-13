@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kong-ing-add01
+  
+spec:
+
+  ingressClassName: kong-ink
+  
+  rules:
+  - host: kong.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ngx-svc-add01
+            port:
+              number: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: kong-ink
+
+spec:
+  controller: ingress-controllers.konghq.com/kong
+

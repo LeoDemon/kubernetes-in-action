@@ -1,0 +1,32 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngx-dep-add01
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ngx-dep-add01
+
+  template:
+    metadata:
+      labels:
+        app: ngx-dep-add01
+    spec:
+      volumes:
+      - name: ngx-conf-add01-vol
+        configMap:
+          name: ngx-conf-add01
+
+      containers:
+      - image: nginx:1.22.1
+        name: nginx
+        ports:
+        - containerPort: 80
+
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d
+          name: ngx-conf-add01-vol
+
