@@ -2,7 +2,10 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: kong-ing-add01
-  
+  annotations:
+    konghq.com/host-aliases: "kong.dev, kong.ops" # 添加额外的域名
+    konghq.com/plugins: kong-add-resp-header-plugin, kong-rate-limiting-plugin
+ 
 spec:
 
   ingressClassName: kong-ink

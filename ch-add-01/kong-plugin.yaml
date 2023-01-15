@@ -1,0 +1,24 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: kong-add-resp-header-plugin
+
+# https://docs.konghq.com/hub/kong-inc/response-transformer/#example-config
+plugin: response-transformer
+config:
+  add:
+    headers:
+      - Resp-New-Header:kong-kic
+
+---
+
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: kong-rate-limiting-plugin
+
+# https://docs.konghq.com/hub/kong-inc/rate-limiting/
+plugin: rate-limiting
+config:
+  minute: 3
+
