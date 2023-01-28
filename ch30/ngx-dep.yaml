@@ -1,0 +1,44 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngx-hpa-dep-ch30
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ngx-hpa-dep-ch30
+
+  template:
+    metadata:
+      labels:
+        app: ngx-hpa-dep-ch30
+    spec:
+      containers:
+      - image: nginx:1.22.1
+        name: nginx
+        ports:
+          - containerPort: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 10Mi
+          limits:
+            cpu: 100m
+            memory: 20Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ngx-hpa-svc-ch30
+  
+spec:
+  selector:
+    app: ngx-hpa-dep-ch30
+    
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+
