@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  creationTimestamp: null
+  name: dev-limit
+  namespace: ns-test
+spec:
+  limits:
+    - type: Container
+      defaultRequest:
+        cpu: 200m
+        memory: 50Mi
+      default:
+        cpu: 500m
+        memory: 100Mi
+    - type: Pod
+      max:
+        cpu: 800m
+        memory: 300Mi
+
