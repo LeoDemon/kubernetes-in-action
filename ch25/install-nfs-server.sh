@@ -2,11 +2,12 @@
 sudo apt -y install nfs-kernel-server
 
 # create nfs shared dir
-mkdir -p /tmp/nfs
+sudo mkdir -p /nfs/dev
+sudo chmod -R 777 /nfs/dev
 
 # config nfs server
 # nvim /etc/exports
-/tmp/nfs 192.168.10.0/24(rw,sync,no_subtree_check,no_root_squash,insecure)
+/nfs/dev 192.168.10.0/24(rw,sync,no_subtree_check,no_root_squash,insecure)
 
 # active nfs config
 sudo exportfs -ra
