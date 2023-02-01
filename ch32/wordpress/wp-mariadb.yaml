@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: maria-cm
+
+data:
+  DATABASE: 'db'
+  USER: 'wp'
+  PASSWORD: '123'
+  ROOT_PASSWORD: '123'
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: maria-db
+  name: maria-sts
+
+spec:
+  # headless service
+  serviceName: maria-svc
+  # pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: maria-db-pvc
+      spec:
+        storageClassName: nfs-client
+        accessModes:
+          - ReadWriteMany
+        resources:
+          requests:
+            storage: 200Mi
+
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maria-sts
+
+  template:
+    metadata:
+      labels:
+        app: maria-sts
+    spec:
+      containers:
+      - image: mariadb:10
+        name: mariadb
+        ports:
+        - containerPort: 3306
+
+        envFrom:
+        - prefix: 'MARIADB_'
+          configMapRef:
+            name: maria-cm
+
+        volumeMounts:
+          - name: maria-db-pvc
+            mountPath: /var/lib/mysql
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: maria-db
+  name: maria-svc
+
+spec:
+  ports:
+  - port: 3306
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: maria-sts
+

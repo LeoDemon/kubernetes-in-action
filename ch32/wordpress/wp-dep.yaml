@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wp-cm
+
+data:
+  HOST: 'maria-sts-0.maria-svc'
+  USER: 'wp'
+  PASSWORD: '123'
+  NAME: 'db'
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: wp-dep
+  name: wp-dep
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wp-dep
+
+  template:
+    metadata:
+      labels:
+        app: wp-dep
+ 
+    spec:
+      containers:
+        - name: wordpress
+          image: wordpress:5
+          ports:
+            - containerPort: 80
+          envFrom:
+            - prefix: 'WORDPRESS_DB_'
+              configMapRef:
+                name: wp-cm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: wp-svc
+  name: wp-svc
+
+spec:
+  ports:
+    - name: http-80
+      port: 80
+      targetPort: 80
+      nodePort: 5100
+      protocol: TCP
+  type: NodePort
+  selector:
+    app: wp-dep
+
